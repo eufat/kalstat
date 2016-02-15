@@ -1,3 +1,14 @@
+Element.prototype.remove = function() {
+    this.parentElement.removeChild(this);
+}
+NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
+    for(var i = this.length - 1; i >= 0; i--) {
+        if(this[i] && this[i].parentElement) {
+            this[i].parentElement.removeChild(this[i]);
+        }
+    }
+}
+
 Array.prototype.remove = function(from, to) {
     var rest = this.slice((to || from) + 1 || this.length);
     this.length = from < 0 ? this.length + from : from;
@@ -46,23 +57,23 @@ var Content = React.createClass({
         this.setState({data: event.target.value});
         var d = event.target.value;
         d = d.replace(/ /g,'');
-        console.log('before', d);
+
         var re = /\s*,\s*/;
+
         d = d.split(re).map(Number);
-        if (d[d.length-1] === 0){
-            d.remove(d.length-1);
+        if ( d[ d.length - 1 ] === 0 ){
+            d.remove( d.length - 1 );
         }
 
-        console.log('after',d);
         var size = d.length;
         var sum = jStat.sum(d);
         var sumsqrd = jStat.sumsqrd(d);
         var min = jStat.min(d);
         var max = jStat.max(d);
         var mean = jStat.mean(d);
-        var geomean = Number((jStat.geomean(d)).toFixed(10));
-        var harmomean = Number((harmonic(d)).toFixed(10));
-        var median = Number((jStat.median(d)).toFixed(10));
+        var geomean = Number((jStat.geomean(d)).toFixed(8));
+        var harmomean = Number((harmonic(d)).toFixed(8));
+        var median = Number((jStat.median(d)).toFixed(8));
         var quartile = jStat.quartiles(d);
         var quartile1 = quartile[0];
         var quartile3 = quartile[2];
@@ -72,15 +83,15 @@ var Content = React.createClass({
             mode = mode.toString();
         }
         var range = jStat.range(d);
-        var stdev = Number((jStat.stdev(d)).toFixed(10));
-        var variance = Number((Math.pow(stdev, 2)).toFixed(10));
-        var meandev = Number((jStat.meandev(d)).toFixed(10));
-        var meddev = Number((jStat.meddev(d)).toFixed(10));
-        var skewness = Number((jStat.skewness(d)).toFixed(10));
-        var kurtosis = Number((jStat.kurtosis(d)).toFixed(10));
-        var coeffvar = Number((jStat.meddev(d)).toFixed(10));
+        var stdev = Number((jStat.stdev(d)).toFixed(8));
+        var variance = Number((Math.pow(stdev, 2)).toFixed(8));
+        var meandev = Number((jStat.meandev(d)).toFixed(8));
+        var meddev = Number((jStat.meddev(d)).toFixed(8));
+        var skewness = Number((jStat.skewness(d)).toFixed(8));
+        var kurtosis = Number((jStat.kurtosis(d)).toFixed(8));
+        var coeffvar = Number((jStat.meddev(d)).toFixed(8));
         var product = jStat.product(d);
-        var iod = variance / mean;
+        var iod = Number(variance / mean).toFixed(8);
 
 
         this.setState({size, sum, min, max, mean, geomean, median, mode, range, stdev, meandev, meddev, skewness, kurtosis, coeffvar, quartile1, quartile3, sumsqrd, variance, iqr, harmomean, product, iod}) ;
@@ -90,7 +101,7 @@ var Content = React.createClass({
             <div>
                 <form>
                     <div className="form-group">
-                        <input type="text" onChange={this.handleChange} className="form-control" id="data" placeholder="misal. 12, 3, 4.5, 47, ..." />
+                        <input type="text" onChange={this.handleChange} className="form-control" id="data" placeholder="masukin data ex. 12, 3, 4.5, 47, ..." />
                     </div>
                 </form>
                 <table className="table">
@@ -194,7 +205,12 @@ var Content = React.createClass({
     }
 
 });
+
+document.getElementById("wait").remove();
+
+// render content
 ReactDOM.render(
     <Content />,
     document.getElementById('content')
 );
+
